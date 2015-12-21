@@ -85,7 +85,7 @@ void sendRandomPacket() {
 void paint(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height) {
     unsigned char buffer[11] = {
         0xFF, 0x12, // command
-        0x03, // mode
+        0x01, // mode
         0x00, 0x00, 0x00, 0x00, // poses
         0x00, 0x00, 0x00, 0x00 // heights
     };
@@ -116,12 +116,6 @@ int main() {
     }
 
     srand(time(NULL));
-
-    /* for(;;) {
-        sendRandomPacket();
-        paint(0, 0, 320, 240);
-        sleep(1);
-    }*/
 
     rawhid_send(0, maybeBitmap, sizeof(maybeBitmap), 64);
 
