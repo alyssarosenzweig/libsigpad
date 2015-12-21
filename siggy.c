@@ -34,16 +34,16 @@ unsigned char maybePaint[] = {
 
 unsigned char maybeShutOff[] = {
     0x59, 0xF8, 0x97, 0xE9, 0xD4, 0xCB, 0xD7, 0xB2,
-    0x7D, 0x1D, 0x94, 0x45, 0x75, 0x38, 0xE8, 0xCE
+    0x7D, 0x1D, 0x94, 0x45, 0x75, 0x38, 0xE8, 0xCE,
     0x03, 0x0E, 0xFA, 0x79, 0xF0, 0x09, 0x7E, 0x12, 
     0x8A, 0xE4, 0x3C, 0x20, 0x80, 0x26, 0x3B, 0xD9,
-    0x1E
 };
 
 void sendRandomPacket() {
-    unsigned char buffer[64];
+    unsigned char buffer[128];
     
-    // randomly initialize buffer
+    // randomly initialize start of buffer;
+    // use all-on for rest
     for(int i = 0; i < sizeof(buffer); ++i) {
         buffer[i] = i > 32 ? 0xFF : rand() & 0xFF;
         printf("0x%02X, ", buffer[i]);
@@ -74,14 +74,14 @@ int main() {
 
     srand(time(NULL));
 
-    for(;;) {
+    /*for(;;) {
         sendRandomPacket();
         //paint();
         sleep(1);
-    }
+    }*/
 
 //   sendTestPacket(arr, 0, 16);
-//     sendTestPacket(maybeShutOff, 0, 33);
+     sendTestPacket(maybeShutOff, 0, 32);
     
     rawhid_close(0);
 
