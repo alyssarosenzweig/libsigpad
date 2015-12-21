@@ -53,13 +53,25 @@ unsigned char maybeTurnOn[] = {
     0x81, 0x02
 };
 
+unsigned char maybeBitmap[] = {
+    0xFF, 0x07, 0x56, 0x6D, 0x43, 0x2D, 0xC1, 0xB4,
+    0x3A, 0xBC, 0x51, 0x02, 0x26, 0x1E, 0x7E, 0x3E,
+    0xB8, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC,
+    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 
+    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 
+    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 
+    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 
+    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC
+};
+
 void sendRandomPacket() {
     unsigned char buffer[64];
     
     // randomly initialize start of buffer;
-    // use all-on for rest
-    for(int i = 0; i < sizeof(buffer); ++i) {
-        buffer[i] = i > 32 ? 0xFF : rand() & 0xFF;
+    // use magic number
+    buffer[0] = 0xFF;
+    for(int i = 1; i < sizeof(buffer); ++i) {
+        buffer[i] = i > 16 ? 0xCC : rand() & 0xFF;
         printf("0x%02X, ", buffer[i]);
     }
 
@@ -73,7 +85,7 @@ void sendRandomPacket() {
 void paint(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height) {
     unsigned char buffer[11] = {
         0xFF, 0x12, // command
-        0x01, // mode
+        0x03, // mode
         0x00, 0x00, 0x00, 0x00, // poses
         0x00, 0x00, 0x00, 0x00 // heights
     };
@@ -81,11 +93,11 @@ void paint(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height) {
     // TODO: non-little endian machines
     buffer[3] = xpos & 0xFF00 >> 8;
     buffer[4] = xpos & 0x00FF;
-    buffer[5] = ypos & 0xFF00; >> 8;
+    buffer[5] = ypos & 0xFF00 >> 8;
     buffer[6] = ypos & 0x00FF;
-    buffer[7] = width & 0xFF00; >> 8;
+    buffer[7] = width & 0xFF00 >> 8;
     buffer[8] = width & 0x00FF;
-    buffer[9] = height & 0xFF00; >> 8;
+    buffer[9] = height & 0xFF00 >> 8;
     buffer[10] = height & 0x00FF;
 
     rawhid_send(0, buffer, sizeof(buffer), 64);
@@ -105,9 +117,13 @@ int main() {
 
     srand(time(NULL));
 
-    paint(50, 50, 50, 50);
-    paint(100, 100, 20, 50);
-    paint(200, 200, 30, 40);
+    /* for(;;) {
+        sendRandomPacket();
+        paint(0, 0, 320, 240);
+        sleep(1);
+    }*/
+
+    rawhid_send(0, maybeBitmap, sizeof(maybeBitmap), 64);
 
     rawhid_close(0);
 
