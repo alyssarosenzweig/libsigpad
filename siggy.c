@@ -34,6 +34,7 @@ unsigned char maybePaint[] = {
 };
 
 // HYPOTHESIS: ANY FIRST BYTE VALUE > 0x80 WORKS
+// Therefore, the first byte is a command byte.
 
 unsigned char maybeShutOff[] = {
     0x81, 0x03
