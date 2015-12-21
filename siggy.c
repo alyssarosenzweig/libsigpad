@@ -29,6 +29,7 @@ unsigned char arr2[] = {
 };
 
 unsigned char maybePaint[] = {
+    0xF7, 0x1C, 0x0A, 0x7E, 0xBA, 0x12, 0x8F, 0x4C,
     0xC7, 0x13, 0xA0, 0x01, 0x40, 0xFF, 0xFF, 0x70
 };
 
@@ -39,8 +40,13 @@ unsigned char maybeShutOff[] = {
     0x8A, 0xE4, 0x3C, 0x20, 0x80, 0x26, 0x3B, 0xD9,
 };
 
+unsigned char maybeTurnOn[] = {
+    0x0B, 0x31, 0x14, 0xFE, 0x55, 0x57, 0x9B, 0x66, 
+    0xD5, 0x16, 0x15, 0x02, 0x5D, 0xE5, 0xEA, 0xF9
+};
+
 void sendRandomPacket() {
-    unsigned char buffer[128];
+    unsigned char buffer[64];
     
     // randomly initialize start of buffer;
     // use all-on for rest
@@ -57,7 +63,7 @@ void sendRandomPacket() {
 }
 
 void paint() {
-    rawhid_send(0, &maybePaint, sizeof(maybePaint), 64);
+    rawhid_send(0, maybePaint, sizeof(maybePaint), 64);
 }
 
 void sendTestPacket(unsigned char* buffer, int offset, int length) {
@@ -74,14 +80,23 @@ int main() {
 
     srand(time(NULL));
 
-    /*for(;;) {
+ /*   for(;;) {
         sendRandomPacket();
-        //paint();
         sleep(1);
-    }*/
+        paint();
+        sleep(1);
+    }
+    
+    paint();
 
-//   sendTestPacket(arr, 0, 16);
-     sendTestPacket(maybeShutOff, 0, 32);
+    sendTestPacket(arr, 0, 16);*/
+
+    for(;;) {
+        sendTestPacket(maybeShutOff, 0, 32);
+        sleep(1);
+        sendTestPacket(maybeTurnOn, 0, 16);
+        sleep(1);
+    }
     
     rawhid_close(0);
 
