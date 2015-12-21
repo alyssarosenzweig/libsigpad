@@ -5,7 +5,7 @@
 
 #include "hid.h"
 
-typedef uint16_t unsigned short;
+typedef unsigned short uint16_t;
 
 // 320x240 resolution
 
@@ -79,13 +79,13 @@ void paint(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height) {
     };
 
     // TODO: non-little endian machines
-    buffer[3] = xpos & 0xFF00;
+    buffer[3] = xpos & 0xFF00 >> 8;
     buffer[4] = xpos & 0x00FF;
-    buffer[5] = ypos & 0xFF00;
+    buffer[5] = ypos & 0xFF00; >> 8;
     buffer[6] = ypos & 0x00FF;
-    buffer[7] = width & 0xFF00;
+    buffer[7] = width & 0xFF00; >> 8;
     buffer[8] = width & 0x00FF;
-    buffer[9] = height & 0xFF00;
+    buffer[9] = height & 0xFF00; >> 8;
     buffer[10] = height & 0x00FF;
 
     rawhid_send(0, buffer, sizeof(buffer), 64);
