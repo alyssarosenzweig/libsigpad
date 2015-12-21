@@ -79,24 +79,8 @@ int main() {
 
     srand(time(NULL));
 
- /*   for(;;) {
-        sendRandomPacket();
-        sleep(1);
-        paint();
-        sleep(1);
-    }
-    
     paint();
-
-    sendTestPacket(arr, 0, 16);*/
-
-    for(;;) {
-        sendTestPacket(maybeShutOff, 0, 2);
-        sleep(1);
-        sendTestPacket(maybeTurnOn, 0, 2);
-        sleep(1);
-    }
-    
+   
     rawhid_close(0);
 
     return 0;
