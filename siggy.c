@@ -7,9 +7,7 @@
 
 unsigned char arr[] = {
     0xF7, 0x1C, 0x0A, 0x7E, 0xBA, 0x12, 0x8F, 0x4C,
-    0xC7, 0x13, 0x85, 0x84, 0x48, 0xBF, 0xCA, 0x70, 
-    0x71, 0xEF, 0x6D, 0xB5, 0x57, 0x63, 0xA5, 0xE9, 
-    0x1B, 0x04, 0x1F, 0x16, 0x13, 0x45, 0x09, 0x0A
+    0xC7, 0x13, 0x85, 0x84, 0x48, 0xBF, 0xCA, 0x70
 };
 
 void sendRandomPacket() {
@@ -28,6 +26,10 @@ void sendRandomPacket() {
     rawhid_send(0, &buffer, sizeof(buffer), 64);
 }
 
+void sendTestPacket(unsigned char* buffer, int offset, int length) {
+    rawhid_send(0, buffer + offset, length, 64);
+}
+
 int main() {
     int r = rawhid_open(10, 0x06A8, 0x0043, -1, -1);
 
@@ -38,14 +40,8 @@ int main() {
 
     srand(time(NULL));
 
-    // let's fuzz this thing
-    // random packet?
-
-    for(;;) {
-        sendRandomPacket();
-        sleep(2);
-    }
-
+    sendTestPacket(arr, 0, 16);
+    
     rawhid_close(0);
 
     return 0;
