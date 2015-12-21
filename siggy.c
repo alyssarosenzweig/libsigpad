@@ -5,9 +5,27 @@
 
 #include "hid.h"
 
+// 320x240 resolution
+
 unsigned char arr[] = {
     0xF7, 0x1C, 0x0A, 0x7E, 0xBA, 0x12, 0x8F, 0x4C,
-    0xC7, 0x13, 0x85, 0x84, 0x48, 0xBF, 0xCA, 0x70
+    
+    0xC7, // also likely control character
+    
+    0x13, // some sort of control character
+          // hacking the last bit causes some change
+    
+    0xA0, // start offset, maybe? 
+    
+    0x01, 0x40, // width (wshort)
+    
+    0xFF, 0xFF, // height, maybe?
+    
+    0x70
+};
+
+unsigned char arr2[] = {
+    0x14
 };
 
 void sendRandomPacket() {
@@ -40,7 +58,13 @@ int main() {
 
     srand(time(NULL));
 
-    sendTestPacket(arr, 0, 16);
+    for(;;) {
+        sendRandomPacket();
+        sleep(1);
+    }
+
+//    sendTestPacket(arr, 0, 16);
+//    sendTestPacket(arr2, 0, 1);
     
     rawhid_close(0);
 
