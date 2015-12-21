@@ -34,11 +34,11 @@ unsigned char maybePaint[] = {
 };
 
 unsigned char maybeShutOff[] = {
-    0xCE, 0x03, 0x00, 0x00
+    0xCE, 0x03
 };
 
 unsigned char maybeTurnOn[] = {
-    0xD5, 0x00, 0x00, 0x02
+    0xD5, 0x02
 };
 
 void sendRandomPacket() {
@@ -88,9 +88,9 @@ int main() {
     sendTestPacket(arr, 0, 16);*/
 
     for(;;) {
-        sendTestPacket(maybeShutOff, 0, 4);
+        sendTestPacket(maybeShutOff, 0, 2);
         sleep(1);
-        sendTestPacket(maybeTurnOn, 0, 4);
+        sendTestPacket(maybeTurnOn, 0, 2);
         sleep(1);
     }
     
