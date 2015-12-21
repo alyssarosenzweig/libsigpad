@@ -29,8 +29,22 @@ unsigned char arr2[] = {
 };
 
 unsigned char maybePaint[] = {
-    0xBA, 0x12, 0x8F, 0x4C,
-    0xC7, 0x13, 0xA0, 0x01, 0x40, 0xFF, 0xFF
+    0xBA, 0x12, // command to paint screen
+    
+    0x11, // Huh. Interesting square pattern with lower-4 = 1.
+    
+    0x00, // reserved 0x4C
+
+    0x00, // Unknown
+    
+    0x00, // Unknown
+
+    0xA0, // x position, perhaps? 
+    0x01, 0x00, // width: big endian
+    
+    0x00,
+    
+    0x20 // height!
 };
 
 // HYPOTHESIS: ANY FIRST BYTE VALUE > 0x80 WORKS
