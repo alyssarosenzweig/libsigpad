@@ -34,12 +34,12 @@ unsigned char maybePaint[] = {
 };
 
 unsigned char maybeShutOff[] = {
-    0x7D, 0x1D, 0x94, 0x45, 0x75, 0x38, 0xE8, 0xCE,
+    0xCE,
     0x03, 0x0E, 0xFA, 0x79, 0xF0, 0x09, 0x7E, 0x12, 
 };
 
 unsigned char maybeTurnOn[] = {
-    0x0B, 0x31, 0x14, 0xFE, 0x55, 0x57, 0x9B, 0x66, 
+    0x66, 
     0xD5, 0x16, 0x15, 0x02, 0x5D, 0xE5, 0xEA, 0xF9
 };
 
@@ -90,9 +90,9 @@ int main() {
     sendTestPacket(arr, 0, 16);*/
 
     for(;;) {
-        sendTestPacket(maybeShutOff, 0, 16);
+        sendTestPacket(maybeShutOff, 0, 9);
         sleep(1);
-        sendTestPacket(maybeTurnOn, 0, 16);
+        sendTestPacket(maybeTurnOn, 0, 9);
         sleep(1);
     }
     
