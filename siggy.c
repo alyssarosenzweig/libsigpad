@@ -28,12 +28,24 @@ unsigned char arr2[] = {
     0x14
 };
 
+unsigned char maybePaint[] = {
+    0xC7, 0x13, 0xA0, 0x01, 0x40, 0xFF, 0xFF, 0x70
+};
+
+unsigned char maybeShutOff[] = {
+    0x59, 0xF8, 0x97, 0xE9, 0xD4, 0xCB, 0xD7, 0xB2,
+    0x7D, 0x1D, 0x94, 0x45, 0x75, 0x38, 0xE8, 0xCE
+    0x03, 0x0E, 0xFA, 0x79, 0xF0, 0x09, 0x7E, 0x12, 
+    0x8A, 0xE4, 0x3C, 0x20, 0x80, 0x26, 0x3B, 0xD9,
+    0x1E
+};
+
 void sendRandomPacket() {
-    unsigned char buffer[32];
+    unsigned char buffer[64];
     
     // randomly initialize buffer
     for(int i = 0; i < sizeof(buffer); ++i) {
-        buffer[i] = rand() & 0xFF;
+        buffer[i] = i > 32 ? 0xFF : rand() & 0xFF;
         printf("0x%02X, ", buffer[i]);
     }
 
@@ -42,6 +54,10 @@ void sendRandomPacket() {
     //s send
 
     rawhid_send(0, &buffer, sizeof(buffer), 64);
+}
+
+void paint() {
+    rawhid_send(0, &maybePaint, sizeof(maybePaint), 64);
 }
 
 void sendTestPacket(unsigned char* buffer, int offset, int length) {
@@ -60,11 +76,12 @@ int main() {
 
     for(;;) {
         sendRandomPacket();
+        //paint();
         sleep(1);
     }
 
-//    sendTestPacket(arr, 0, 16);
-//    sendTestPacket(arr2, 0, 1);
+//   sendTestPacket(arr, 0, 16);
+//     sendTestPacket(maybeShutOff, 0, 33);
     
     rawhid_close(0);
 
