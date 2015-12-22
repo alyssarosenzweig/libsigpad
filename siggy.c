@@ -65,7 +65,7 @@ unsigned char maybeBitmapAndFade[] = {
 };
 
 unsigned char maybeBitmap[] = {
-    0xFF, 0x07, // command to send bitmap
+    0xFF, 0x08, // command to send bitmap
 
     0x02, // mode maybe?
     
@@ -99,7 +99,7 @@ void sendRandomPacket() {
     // use magic number
     buffer[0] = 0xFF;
     for(int i = 1; i < sizeof(buffer); ++i) {
-        buffer[i] = i > 16 ? 0xCC : rand() & 0xFF;
+        buffer[i] = i > 11 ? 0xCC : rand() & 0xFF;
         printf("0x%02X, ", buffer[i]);
     }
 
@@ -145,9 +145,15 @@ int main() {
 
     srand(time(NULL));
 
-    for(int x = 0; x < sizeof(maybeBitmap); x += 64) {
-        rawhid_send(0, maybeBitmap + x, 64, 64);
-    }
+    //for(;;) {
+        for(int x = 0; x < sizeof(maybeBitmap); x += 64) {
+            rawhid_send(0, maybeBitmap + x, 64, 64);
+        }
+
+        //sendRandomPacket();
+
+        sleep(1);
+   // }//
 
     //rawhid_send(0, maybeBitmap, sizeof(maybeBitmap), 64);
     //paint(0, 0, 320, 240);
