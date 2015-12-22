@@ -5,6 +5,9 @@
 
 #include "hid.h"
 
+#define MAX_SIZE 0x20
+
+typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 
 // 320x240 resolution
@@ -65,31 +68,60 @@ unsigned char maybeBitmapAndFade[] = {
 };
 
 unsigned char maybeBitmap[] = {
-    0xFF, 0x08, // command to send bitmap
+    0xFE, 0x08, // command to send bitmap
 
     0x02, // mode maybe?
     
     0x00, 0x00, // x and y, big endian
     0x00, 0x00,
     
-    0x00, 0x10, // width and height, big endian
-    0x00, 0x38,
+    0x00, 0x08, // width and height, big endian
+    0x00, 0x10,
 
     // bitmap data follows
-    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC,
-    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC,
-    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 
-    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 
-    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 
-    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 
-    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC,
-    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC,
-    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 
-    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 
-    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 
-    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 
-    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC,
-    0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC
+    0x18, 0x3C, 0x66, 0x7E, 0x66, 0x66, 0x00, 0x00,
+    0x18, 0x3C, 0x66, 0x7E, 0x66, 0x66, 0x00, 0x00,
+};
+
+void sendBitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {
+    unsigned char buffer[11] = {
+        0xFF, 0x07, // command
+        0x02, // mode
+        0x00, 0x00, 0x00, 0x00, // poses
+        0x00, 0x00, 0x00, 0x00 // heights
+    };
+
+    // TODO: non-little endian machines
+    buffer[3] = (xpos & 0xFF00) >> 8;
+    buffer[4] = (xpos & 0x00FF);
+    buffer[5] = (ypos & 0xFF00) >> 8;
+    buffer[6] = (ypos & 0x00FF);
+    buffer[7] = (width & 0xFF00) >> 8;
+    buffer[8] = (width & 0x00FF);
+    buffer[9] = (height & 0xFF00) >> 8;
+    buffer[10] = (height & 0x00FF);
+
+    int s = (width*height >> 3);
+    int l = 11 + s;
+
+    unsigned char* buf = malloc(l);
+    memcpy(buf, buffer, 11);
+    memcpy(buf + 11, data, s);
+
+    for(int i = 0; i < l; i += MAX_SIZE) {
+        int toSend = i + MAX_SIZE > l ? l - i : MAX_SIZE;
+
+        rawhid_send(0, buf + i, toSend, 128);
+
+        usleep(128000);
+    }
+
+    free(buf);
+}
+
+unsigned char maybeSetMode[] = {
+    0xFF, 0x09, // (guess) command to set mode
+    0x02 // mode
 };
 
 void sendRandomPacket() {
@@ -110,23 +142,23 @@ void sendRandomPacket() {
     rawhid_send(0, &buffer, sizeof(buffer), 64);
 }
 
-void paint(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height) {
+void paint(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8_t mode) {
     unsigned char buffer[11] = {
         0xFF, 0x12, // command
-        0x02, // mode
+        mode, // mode
         0x00, 0x00, 0x00, 0x00, // poses
         0x00, 0x00, 0x00, 0x00 // heights
     };
 
     // TODO: non-little endian machines
-    buffer[3] = xpos & 0xFF00 >> 8;
-    buffer[4] = xpos & 0x00FF;
-    buffer[5] = ypos & 0xFF00 >> 8;
-    buffer[6] = ypos & 0x00FF;
-    buffer[7] = width & 0xFF00 >> 8;
-    buffer[8] = width & 0x00FF;
-    buffer[9] = height & 0xFF00 >> 8;
-    buffer[10] = height & 0x00FF;
+    buffer[3] = (xpos & 0xFF00) >> 8;
+    buffer[4] = (xpos & 0x00FF);
+    buffer[5] = (ypos & 0xFF00) >> 8;
+    buffer[6] = (ypos & 0x00FF);
+    buffer[7] = (width & 0xFF00) >> 8;
+    buffer[8] = (width & 0x00FF);
+    buffer[9] = (height & 0xFF00) >> 8;
+    buffer[10] = (height & 0x00FF);
 
     rawhid_send(0, buffer, sizeof(buffer), 64);
 }
@@ -145,18 +177,44 @@ int main() {
 
     srand(time(NULL));
 
-    //for(;;) {
-        for(int x = 0; x < sizeof(maybeBitmap); x += 64) {
-            rawhid_send(0, maybeBitmap + x, 64, 64);
+    /*for(int x = 0; x < sizeof(maybeBitmap); x++) {
+        rawhid_send(0, maybeBitmap + x, 1, 32);
+    }*/
+
+    rawhid_send(0, maybeTurnOn, 2, 16);
+    paint(0, 0, 320, 240, 0);
+
+/*    char charA[] = { 0x18, 0x3C, 0x66, 0x7E, 0x66, 0x66, 0x00, 0x00 };
+
+    for(int x = 0; x < 40; ++x) {
+        for(int y = 0; y < 30; ++y) {
+            sendBitmap(x * 8, y * 8, 8, 8, charA);
+            usleep(100000);
         }
+    }*/
 
-        //sendRandomPacket();
+    // generate a nice checkerboard
 
-        sleep(1);
-   // }//
+    unsigned char checkerboard[40 * 240];
 
-    //rawhid_send(0, maybeBitmap, sizeof(maybeBitmap), 64);
-    //paint(0, 0, 320, 240);
+    for(int y = 0; y < 240; y += 8) {
+        for(int x = 0; x < 40; ++x) {
+            int v = 0x00;
+
+            if( (x & 1) == 0) {
+                v = 0xFF;
+            }
+
+            for(int q = 0; q < 8; ++q) {
+                checkerboard[ (y+q) * 40 + x] = v;
+            }
+        }
+    }
+
+    sendBitmap(0, 0, 320, 1, checkerboard);
+//    int e = rawhid_send(0, maybeBitmap, sizeof(maybeBitmap), 4096);
+
+  //  printf("%d / %d\n", e, sizeof(maybeBitmap));
 
     rawhid_close(0);
 
