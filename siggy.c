@@ -7,7 +7,7 @@
 #include "hid.h"
 
 #define MAX_SIZE 0x20
-#define TIMEOUT 128
+#define TIMEOUT 16
 
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
@@ -147,12 +147,12 @@ int main() {
 
     
 
-    for(int y = 0; y < 10; ++y) {
-        for(int x = 0; x < 10; ++x) {
+    for(int y = 0; y < 30; ++y) {
+        for(int x = 0; x < 40; ++x) {
             sendBitmapRaw(x << 3, y << 3, 8, 8, charA);
-            usleep(200000);
-            int bytes = rawhid_recv(0, buffer, sizeof(buffer), TIMEOUT);
-            hexdump(buffer, bytes);
+            usleep(10000);
+            rawhid_recv(0, buffer, sizeof(buffer), TIMEOUT);
+            hexdump(buffer, sizeof(buffer));
             rawhid_send(0, buffer, sizeof(buffer), TIMEOUT);
 
         }
