@@ -29,23 +29,21 @@ static inline void send_packet(unsigned char* buffer, size_t length) {
 void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {
     int dataLength = (width * height) >> 3;
 
-    unsigned char header[11] = {};
-    header[0] = 0xF2; // command bytes
-    header[1] = 0x07;
-    header[2] = 0x02; // mode
-    header[3] = (xpos & 0xFF00) >> 8;
-    header[4] = (xpos & 0x00FF);
-    header[5] = (ypos & 0xFF00) >> 8;
-    header[6] = (ypos & 0x00FF);
-    header[7] = (width & 0xFF00) >> 8;
-    header[8] = (width & 0x00FF);
-    header[9] = (height & 0xFF00) >> 8;
-    header[10] = (height & 0x00FF);
+    unsigned char* buffer = malloc(11 + dataLength);
+    buffer[0] = 0xF2; // command bytes
+    buffer[1] = 0x07;
+    buffer[2] = 0x02; // mode
+    buffer[3] = (xpos & 0xFF00) >> 8;
+    buffer[4] = (xpos & 0x00FF);
+    buffer[5] = (ypos & 0xFF00) >> 8;
+    buffer[6] = (ypos & 0x00FF);
+    buffer[7] = (width & 0xFF00) >> 8;
+    buffer[8] = (width & 0x00FF);
+    buffer[9] = (height & 0xFF00) >> 8;
+    buffer[10] = (height & 0x00FF);
 
-    unsigned char* buffer = malloc(dataLength + sizeof(header));
-    memcpy(buffer, header, sizeof(header));
-    memcpy(buffer + sizeof(header), data, dataLength);
-    send_packet(buffer, dataLength + sizeof(header));
+    memcpy(buffer + 11, data, dataLength);
+    send_packet(buffer, dataLength + 11);
 
     free(buffer);
 }
@@ -86,7 +84,7 @@ int main() {
         return -1;
     }
 
-//    clear();
+    clear();
 
     // test program -- fill screen with A's
     char charA[] = { 0x18, 0x3C, 0x66, 0x7E, 0x66, 0x66, 0x00, 0x00 };
