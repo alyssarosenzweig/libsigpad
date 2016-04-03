@@ -11,6 +11,8 @@
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 
+uint8_t pingBuffer[16];
+
 // 320x240 resolution
 
 /* response format document notes (hypothesis anyway)
@@ -36,11 +38,10 @@ unsigned char maybeTurnOn[] = {
 
 static inline void send_packet(char* buffer, size_t length) {
     rawhid_send(0, buffer, length, TIMEOUT);
-    usleep(100);
+    usleep(100000);
     
-    rawhid_recv(0, buffer, sizeof(buffer), TIMEOUT);
-    hexdump(buffer, sizeof(buffer));
-    rawhid_send(0, buffer, sizeof(buffer), TIMEOUT);
+    rawhid_recv(0, pingBuffer, sizeof(pingBuffer), TIMEOUT);
+    rawhid_send(0, pingBuffer, sizeof(pingBuffer), TIMEOUT);
 }
 
 void sendBitmapRaw(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {
