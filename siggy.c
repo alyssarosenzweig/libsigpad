@@ -7,7 +7,7 @@
 #include "hid.h"
 
 #define MAX_SIZE 0x20
-#define TIMEOUT 16
+#define TIMEOUT 4
 
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
@@ -62,7 +62,7 @@ void sendBitmapRaw(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height
     memcpy(buffer, header, sizeof(header));
     memcpy(buffer + sizeof(header), data, dataLength);
 
-    rawhid_send(0, buffer, sizeof(header) + dataLength, 1000000000);
+    rawhid_send(0, buffer, sizeof(header) + dataLength, TIMEOUT);
 }
 
 unsigned char maybeSetMode[] = {
@@ -150,13 +150,14 @@ int main() {
     for(int y = 0; y < 30; ++y) {
         for(int x = 0; x < 40; ++x) {
             sendBitmapRaw(x << 3, y << 3, 8, 8, charA);
-            usleep(10000);
-            rawhid_recv(0, buffer, sizeof(buffer), TIMEOUT);
-            hexdump(buffer, sizeof(buffer));
-            rawhid_send(0, buffer, sizeof(buffer), TIMEOUT);
+            usleep(100);
 
+        rawhid_recv(0, buffer, sizeof(buffer), TIMEOUT);
+        hexdump(buffer, sizeof(buffer));
+        rawhid_send(0, buffer, sizeof(buffer), TIMEOUT);
+ 
         }
-    }
+   }
 
     rawhid_close(0);
 
