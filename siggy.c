@@ -6,11 +6,13 @@
 
 #include "hid.h"
 
+#define PING_PACKET_COUNT 16
 #define TIMEOUT 4
 
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 
+unsigned int pingTimer = PING_PACKET_COUNT;
 uint8_t pingBuffer[16];
 
 // 320x240 resolution
@@ -38,10 +40,12 @@ unsigned char maybeTurnOn[] = {
 
 static inline void send_packet(char* buffer, size_t length) {
     rawhid_send(0, buffer, length, TIMEOUT);
-    usleep(100000);
-    
-    rawhid_recv(0, pingBuffer, sizeof(pingBuffer), TIMEOUT);
-    rawhid_send(0, pingBuffer, sizeof(pingBuffer), TIMEOUT);
+
+    if(pingTimer-- == 0) {
+        rawhid_recv(0, pingBuffer, sizeof(pingBuffer), TIMEOUT);
+        rawhid_send(0, pingBuffer, sizeof(pingBuffer), TIMEOUT);
+        pingTimer = PING_PACKET_COUNT;
+    }
 }
 
 void sendBitmapRaw(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {
