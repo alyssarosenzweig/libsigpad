@@ -1,3 +1,5 @@
+#include "libsigpad.h"
+
 int main() {
     int status = rawhid_open(10, 0x06A8, 0x0043, -1, -1); 
 
