@@ -5,6 +5,17 @@ uint8_t pingBuffer[16];
 
 // TODO: support big-endian machines
 
+void init_sigpad() {
+    int status = rawhid_open(10, 0x06A8, 0x0043, -1, -1); 
+
+    if(status != 1) {
+        printf("Opening error: %d\n", status);
+        return -1;
+    }
+
+    clear();
+}
+
 static inline void send_packet(unsigned char* buffer, size_t length) {
     rawhid_send(0, buffer, length, TIMEOUT);
 
@@ -64,5 +75,3 @@ void backlightControl(bool on) {
 
 void backlightOn() { backlightControl(1); }
 void backlightOff() { backlightControl(0); }
-
-

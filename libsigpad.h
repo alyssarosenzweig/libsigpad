@@ -11,6 +11,9 @@
 #define PING_PACKET_COUNT 16
 #define TIMEOUT 4
 
+// Call this before using any other functions.
+void init_sigpad();
+
 // Blits a monochrome bitmap.
 // Must fall on 8x8 boundaries
 
