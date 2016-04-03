@@ -6,7 +6,6 @@
 
 #include "hid.h"
 
-#define MAX_SIZE 0x20
 #define TIMEOUT 4
 
 typedef unsigned char uint8_t;
@@ -35,6 +34,15 @@ unsigned char maybeTurnOn[] = {
     0x81, 0x02
 };
 
+static inline void send_packet(char* buffer, size_t length) {
+    rawhid_send(0, buffer, length, TIMEOUT);
+    usleep(100);
+    
+    rawhid_recv(0, buffer, sizeof(buffer), TIMEOUT);
+    hexdump(buffer, sizeof(buffer));
+    rawhid_send(0, buffer, sizeof(buffer), TIMEOUT);
+}
+
 void sendBitmapRaw(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {
     printf("%d,%d x %d,%d\n", xpos, ypos, width, height);
 
@@ -62,31 +70,13 @@ void sendBitmapRaw(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height
     memcpy(buffer, header, sizeof(header));
     memcpy(buffer + sizeof(header), data, dataLength);
 
-    rawhid_send(0, buffer, sizeof(header) + dataLength, TIMEOUT);
+    send_packet(buffer, sizeof(header) + dataLength);
 }
 
 unsigned char maybeSetMode[] = {
     0xFF, 0x09, // (guess) command to set mode
     0x02 // mode
 };
-
-void sendRandomPacket() {
-    unsigned char buffer[64];
-    
-    // randomly initialize start of buffer;
-    // use magic number
-    buffer[0] = 0xFF;
-    for(int i = 1; i < sizeof(buffer); ++i) {
-        buffer[i] = i > 11 ? 0xCC : rand() & 0xFF;
-        printf("0x%02X, ", buffer[i]);
-    }
-
-    putchar('\n');
-
-    //s send
-
-    rawhid_send(0, &buffer, sizeof(buffer), 64);
-}
 
 void paint(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8_t mode) {
     unsigned char buffer[11] = {
@@ -106,11 +96,7 @@ void paint(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8_
     buffer[9] = (height & 0xFF00) >> 8;
     buffer[10] = (height & 0x00FF);
 
-    rawhid_send(0, buffer, sizeof(buffer), 64);
-}
-
-void sendTestPacket(unsigned char* buffer, int offset, int length) {
-    rawhid_send(0, buffer + offset, length, 64);
+    send_packet(buffer, sizeof(buffer));
 }
 
 void hexdump(unsigned char* buffer, size_t length) {
@@ -128,34 +114,12 @@ int main() {
         return -1;
     }
 
-    srand(time(NULL));
-
-    //rawhid_send(0, maybeTurnOn, 2, 16);
-
     char charA[] = { 0x18, 0x3C, 0x66, 0x7E, 0x66, 0x66, 0x00, 0x00 };
     char buffer[8];
     
-/*    int bytes = rawhid_recv(0, buffer, sizeof(buffer), TIMEOUT);
-    hexdump(buffer, bytes);
-    
-    char checkerboard[9600];
-    memset(checkerboard, 0x99, sizeof(checkerboard));
-    sendBitmapRaw(0, 0, 320, 240, checkerboard);
-
-    bytes = rawhid_recv(0, buffer, sizeof(buffer), TIMEOUT);
-    hexdump(buffer, bytes);*/
-
-    
-
     for(int y = 0; y < 30; ++y) {
         for(int x = 0; x < 40; ++x) {
             sendBitmapRaw(x << 3, y << 3, 8, 8, charA);
-            usleep(100);
-
-        rawhid_recv(0, buffer, sizeof(buffer), TIMEOUT);
-        hexdump(buffer, sizeof(buffer));
-        rawhid_send(0, buffer, sizeof(buffer), TIMEOUT);
- 
         }
    }
 
