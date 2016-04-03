@@ -13,6 +13,16 @@ typedef unsigned short uint16_t;
 
 // 320x240 resolution
 
+/* response format document notes (hypothesis anyway)
+ * not currently used, but might be useful for debugging
+ *
+ * first byte is always under 0x80 -- that distinguishes send/recv
+ * next byte the command -- I've gotten 0x1C a couple of times
+ * next few bytes I'm not sure about:
+ * 0x1C 0x1D 0x26 0x04 0x1D 0x26 0x04 0x00 0x00 0x00...
+ * these are *definitely* structured.. but how?
+ */
+
 // HYPOTHESIS: ANY FIRST BYTE VALUE > 0x80 WORKS
 // Therefore, the first byte is a command byte.
 
@@ -28,7 +38,7 @@ void sendBitmapRaw(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height
     printf("%d,%d x %d,%d\n", xpos, ypos, width, height);
 
     unsigned char header[] = {
-        0xFF, 0x07, // command
+        0xFE, 0x07, // command
         0x02, // mode
         0x00, 0x00, 0x00, 0x00, // poses
         0x00, 0x00, 0x00, 0x00 // heights
@@ -51,7 +61,7 @@ void sendBitmapRaw(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height
     memcpy(buffer, header, sizeof(header));
     memcpy(buffer + sizeof(header), data, dataLength);
 
-    rawhid_send(0, buffer, sizeof(header) + dataLength, 64);
+    rawhid_send(0, buffer, sizeof(header) + dataLength, 1000000000);
 }
 
 unsigned char maybeSetMode[] = {
@@ -102,6 +112,13 @@ void sendTestPacket(unsigned char* buffer, int offset, int length) {
     rawhid_send(0, buffer + offset, length, 64);
 }
 
+void hexdump(unsigned char* buffer, size_t length) {
+    for(int i = 0; i < length; ++i) {
+        printf("%X ", buffer[i]);
+    }
+    putchar('\n');
+}
+
 int main() {
     int r = rawhid_open(10, 0x06A8, 0x0043, -1, -1);
 
@@ -116,14 +133,21 @@ int main() {
 
     char charA[] = { 0x18, 0x3C, 0x66, 0x7E, 0x66, 0x66, 0x00, 0x00 };
 
-    /*for(int x = 0; x < 40; ++x) {
-        for(int y = 0; y < 30; ++y) {
-            sendBitmap(x * 8, y * 8, 8, 8, charA);
-            usleep(100000);
-        }
-    }*/
+    //char checkerboard[9600];
+    //memset(checkerboard, 0x99, sizeof(checkerboard));
+    //sendBitmapRaw(0, 0, 320, 240, checkerboard);
 
-    sendBitmapRaw(0, 0, 8, 8, charA);
+    char buffer[32];
+
+    for(int y = 0; y < 10; ++y) {
+        for(int x = 0; x < 10; ++x) {
+            sendBitmapRaw(x << 3, y << 3, 8, 8, charA);
+            usleep(50000);
+            int bytes = rawhid_recv(0, buffer, sizeof(buffer), 32);
+            hexdump(buffer, bytes);
+
+        }
+    }
 
     rawhid_close(0);
 
