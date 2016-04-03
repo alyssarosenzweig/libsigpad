@@ -7,6 +7,7 @@
 #include "hid.h"
 
 #define MAX_SIZE 0x20
+#define TIMEOUT 128
 
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
@@ -38,7 +39,7 @@ void sendBitmapRaw(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height
     printf("%d,%d x %d,%d\n", xpos, ypos, width, height);
 
     unsigned char header[] = {
-        0xFE, 0x07, // command
+        0xF2, 0x07, // command
         0x02, // mode
         0x00, 0x00, 0x00, 0x00, // poses
         0x00, 0x00, 0x00, 0x00 // heights
@@ -132,19 +133,27 @@ int main() {
     //rawhid_send(0, maybeTurnOn, 2, 16);
 
     char charA[] = { 0x18, 0x3C, 0x66, 0x7E, 0x66, 0x66, 0x00, 0x00 };
+    char buffer[8];
+    
+/*    int bytes = rawhid_recv(0, buffer, sizeof(buffer), TIMEOUT);
+    hexdump(buffer, bytes);
+    
+    char checkerboard[9600];
+    memset(checkerboard, 0x99, sizeof(checkerboard));
+    sendBitmapRaw(0, 0, 320, 240, checkerboard);
 
-    //char checkerboard[9600];
-    //memset(checkerboard, 0x99, sizeof(checkerboard));
-    //sendBitmapRaw(0, 0, 320, 240, checkerboard);
+    bytes = rawhid_recv(0, buffer, sizeof(buffer), TIMEOUT);
+    hexdump(buffer, bytes);*/
 
-    char buffer[32];
+    
 
     for(int y = 0; y < 10; ++y) {
         for(int x = 0; x < 10; ++x) {
             sendBitmapRaw(x << 3, y << 3, 8, 8, charA);
-            usleep(50000);
-            int bytes = rawhid_recv(0, buffer, sizeof(buffer), 32);
+            usleep(200000);
+            int bytes = rawhid_recv(0, buffer, sizeof(buffer), TIMEOUT);
             hexdump(buffer, bytes);
+            rawhid_send(0, buffer, sizeof(buffer), TIMEOUT);
 
         }
     }
