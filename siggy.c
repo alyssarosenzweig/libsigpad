@@ -24,54 +24,34 @@ unsigned char maybeTurnOn[] = {
     0x81, 0x02
 };
 
-// this function does not take more than 32 bytes
-// length checking must be done in caller
 void sendBitmapRaw(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {
     printf("%d,%d x %d,%d\n", xpos, ypos, width, height);
 
-    unsigned char buffer[32] = {
+    unsigned char header[] = {
         0xFF, 0x07, // command
         0x02, // mode
         0x00, 0x00, 0x00, 0x00, // poses
-        0x00, 0x00, 0x00, 0x00, // heights
-        0x00, 0x00, 0x00, 0x00, // bitmap content
-        0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00,
-        0x00
+        0x00, 0x00, 0x00, 0x00 // heights
     };
 
     // TODO: non-little endian machines
-    buffer[3] = (xpos & 0xFF00) >> 8;
-    buffer[4] = (xpos & 0x00FF);
-    buffer[5] = (ypos & 0xFF00) >> 8;
-    buffer[6] = (ypos & 0x00FF);
-    buffer[7] = (width & 0xFF00) >> 8;
-    buffer[8] = (width & 0x00FF);
-    buffer[9] = (height & 0xFF00) >> 8;
-    buffer[10] = (height & 0x00FF);
+    header[3] = (xpos & 0xFF00) >> 8;
+    header[4] = (xpos & 0x00FF);
+    header[5] = (ypos & 0xFF00) >> 8;
+    header[6] = (ypos & 0x00FF);
+    header[7] = (width & 0xFF00) >> 8;
+    header[8] = (width & 0x00FF);
+    header[9] = (height & 0xFF00) >> 8;
+    header[10] = (height & 0x00FF);
 
-    memcpy(buffer + 11, data, width * height >> 3);
-}
+    int dataLength = (width * height) >> 3;
 
-// in charge of segmentation..
+    unsigned char* buffer = malloc(sizeof(header) + dataLength);
 
-void sendBitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {
-    for(int y = 0; y < height; y += 16) {
-        int h = height - y > 16 ? 16 : height - y;
+    memcpy(buffer, header, sizeof(header));
+    memcpy(buffer + sizeof(header), data, dataLength);
 
-        for(int x = 0; x < width; x += 8) {
-            sendBitmapRaw(
-                    xpos + x, ypos + y,
-                    8, h,
-                    data + (y * width >> 3) + (x >> 3)
-                );
-
-            printf("Blit\n");
-            sleep(1);
-        }
-    }
+    rawhid_send(0, buffer, sizeof(header) + dataLength, 64);
 }
 
 unsigned char maybeSetMode[] = {
@@ -134,7 +114,7 @@ int main() {
 
     //rawhid_send(0, maybeTurnOn, 2, 16);
 
-    //char charA[] = { 0x18, 0x3C, 0x66, 0x7E, 0x66, 0x66, 0x00, 0x00 };
+    char charA[] = { 0x18, 0x3C, 0x66, 0x7E, 0x66, 0x66, 0x00, 0x00 };
 
     /*for(int x = 0; x < 40; ++x) {
         for(int y = 0; y < 30; ++y) {
@@ -143,8 +123,7 @@ int main() {
         }
     }*/
 
-    paint(129, 129, 128, 128, 1);
-    
+    sendBitmapRaw(0, 0, 8, 8, charA);
 
     rawhid_close(0);
 
