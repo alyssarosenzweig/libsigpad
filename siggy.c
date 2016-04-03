@@ -104,6 +104,11 @@ void paint(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8_
     send_packet(buffer, sizeof(buffer));
 }
 
+void clear() { 
+    paint(0, 0, 320, 240, 2);
+    usleep(1000000);
+}
+
 void hexdump(unsigned char* buffer, size_t length) {
     for(int i = 0; i < length; ++i) {
         printf("%X ", buffer[i]);
@@ -118,6 +123,8 @@ int main() {
         printf("Ahh! signature pad thing not working, hm: %d\n", r);
         return -1;
     }
+
+    clear();
 
     char charA[] = { 0x18, 0x3C, 0x66, 0x7E, 0x66, 0x66, 0x00, 0x00 };
     char buffer[8];
