@@ -5,7 +5,7 @@ uint8_t pingBuffer[16];
 
 // TODO: support big-endian machines
 
-void init_sigpad() {
+int init_sigpad() {
     int status = rawhid_open(10, 0x06A8, 0x0043, -1, -1); 
 
     if(status != 1) {
@@ -14,16 +14,18 @@ void init_sigpad() {
     }
 
     clear();
+    return 0;
+}
+
+inline display_pong() {
+    rawhid_recv(0, pingBuffer, sizeof(pingBuffer), TIMEOUT);
+    rawhid_send(0, pingBuffer, sizeof(pingBuffer), TIMEOUT);
+    pingTimer = PING_PACKET_COUNT;
 }
 
 static inline void send_packet(unsigned char* buffer, size_t length) {
     rawhid_send(0, buffer, length, TIMEOUT);
-
-    if(pingTimer-- == 0) {
-        rawhid_recv(0, pingBuffer, sizeof(pingBuffer), TIMEOUT);
-        rawhid_send(0, pingBuffer, sizeof(pingBuffer), TIMEOUT);
-        pingTimer = PING_PACKET_COUNT;
-    }
+    if(pingTimer-- == 0) display_pong();
 }
 
 void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {

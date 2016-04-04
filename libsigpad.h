@@ -12,7 +12,7 @@
 #define TIMEOUT 4
 
 // Call this before using any other functions.
-void init_sigpad();
+int init_sigpad();
 
 // Blits a monochrome bitmap.
 // Must fall on 8x8 boundaries
@@ -33,3 +33,6 @@ void clear();
 void backlightControl(bool on);
 void backlightOn();
 void backlightOff();
+
+// low-level command to force the display to pong
+void display_pong();
