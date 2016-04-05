@@ -48,3 +48,10 @@ void renderGlyph(char c, int x, int y, int size) {
 
     free(bmp);
 }
+
+void renderString(char* str, int x, int y, int size) {
+    while(*str != '\0') {
+        renderGlyph(*str++, x, y, size);
+        x += size;
+    }
+}
