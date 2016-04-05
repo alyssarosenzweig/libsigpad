@@ -7,14 +7,14 @@
 #include "bitfont.h"
 
 unsigned char makeHLine(char* line) {
-    return ((line[0] == "*") ? (1<<7) : 0) |
-           ((line[1] == "*") ? (1<<6) : 0) |
-           ((line[2] == "*") ? (1<<5) : 0) |
-           ((line[3] == "*") ? (1<<4) : 0) |
-           ((line[4] == "*") ? (1<<3) : 0) |
-           ((line[5] == "*") ? (1<<2) : 0) |
-           ((line[6] == "*") ? (1<<1) : 0) |
-           ((line[7] == "*") ? (1<<0) : 0);
+    return ((line[0] == '*') ? (1<<7) : 0) |
+           ((line[1] == '*') ? (1<<6) : 0) |
+           ((line[2] == '*') ? (1<<5) : 0) |
+           ((line[3] == '*') ? (1<<4) : 0) |
+           ((line[4] == '*') ? (1<<3) : 0) |
+           ((line[5] == '*') ? (1<<2) : 0) |
+           ((line[6] == '*') ? (1<<1) : 0) |
+           ((line[7] == '*') ? (1<<0) : 0);
 }
 
 Glyph make8x8Glyph(
@@ -40,6 +40,8 @@ Glyph make8x8Glyph(
 
     return g;
 }
+
+Glyph c1, c2, c3, c4, c5, c6, c7, c8, c9, cColon, cUnknown;
 
 void initializeGlyphs() {
     c1 = make8x8Glyph(

@@ -17,7 +17,7 @@ int init_sigpad() {
     return 0;
 }
 
-inline display_pong() {
+inline void display_pong() {
     rawhid_recv(0, pingBuffer, sizeof(pingBuffer), TIMEOUT);
     rawhid_send(0, pingBuffer, sizeof(pingBuffer), TIMEOUT);
     pingTimer = PING_PACKET_COUNT;
@@ -28,7 +28,7 @@ static inline void send_packet(unsigned char* buffer, size_t length) {
     if(pingTimer-- == 0) display_pong();
 }
 
-void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {
+void bitmapRaw(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {
     int dataLength = (width * height) >> 3;
 
     unsigned char* buffer = malloc(11 + dataLength);
@@ -48,6 +48,14 @@ void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void*
     send_packet(buffer, dataLength + 11);
 
     free(buffer);
+}
+
+void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {
+    for(int i = 0; i < width; i += 8) {
+        for(int j = 0; j < height; j += 8) {
+            bitmapRaw(xpos + i, ypos + j, 8, 8, data + (j * (width >> 3)) + (i >> 3));
+        }
+    }
 }
 
 void rectangle(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8_t mode) {
