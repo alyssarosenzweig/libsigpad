@@ -6,8 +6,7 @@ unsigned char* scale(unsigned char* g, int scalar) {
     unsigned char* out = malloc(8 * scalar * scalar);
     memset(out, 0, 8 * scalar * scalar);
 
-    int index = 0;
-    int bIndex = 7;
+    int count = 0;
 
     for(int y = 0; y < 8; ++y) {
         for(int i = 0; i < scalar; ++i) {
@@ -15,15 +14,8 @@ unsigned char* scale(unsigned char* g, int scalar) {
                 unsigned char v = ((g[y] & (1 << x)) == 0);
 
                 for(int j = 0; j < scalar; ++j) {
-                    //if(!v) out[index] |= 1 << bIndex;
-                    putchar(v ? '.' : '*');
-                    out[index] |= v ? 0 : (1 << bIndex);
-                    
-                    bIndex--;
-                    if(bIndex < 0) {
-                        bIndex = 7;
-                        ++index;
-                    }
+                    if(!v) out[count >> 3] |= (1 << (count & 7));
+                    ++count;
                 }
             }
 

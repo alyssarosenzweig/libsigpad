@@ -50,10 +50,35 @@ void bitmapRaw(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, vo
     free(buffer);
 }
 
-void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {
-    for(int i = 0; i < width; i += 8) {
-        for(int j = 0; j < height; j += 8) {
-            bitmapRaw(xpos + i, ypos + j, 8, 8, data + (j * (width >> 3)) + (i >> 3));
+void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8_t* data) {
+    unsigned char scrap[8];
+
+    for(int x = 0; x < width; x += 8) {
+        for(int y = 0; y < width; y += 8) {
+            // copy, row by row, 8 pixels of data
+
+            for(int i = 0; i < 8; ++i) {
+                // i is the row
+                // y is the beginning
+                // so (y+i) is the current y coord
+                int tY = y + i;
+
+                // x is the current x coordinate
+                // the subblock is implicity
+                int tX = width - 8 - x;
+
+                // the address, as usual, is y*width + x
+                int addr = tY * (width >> 3) + (tX >> 3);
+
+                // except, here that address is 8x too big
+                scrap[i] = data[addr];
+            }
+
+            bitmapRaw(
+                    xpos + x, ypos + y,
+                    8, 8,
+                    scrap
+                );
         }
     }
 }
