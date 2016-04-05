@@ -11,15 +11,13 @@ unsigned char* scale(unsigned char* g, int scalar) {
     for(int y = 0; y < 8; ++y) {
         for(int i = 0; i < scalar; ++i) {
             for(int x = 0; x < 8; ++x) {
-                unsigned char v = ((g[y] & (1 << x)) == 0);
+                unsigned char v = ((g[y] & (1 << (7-x))) == 0);
 
                 for(int j = 0; j < scalar; ++j) {
-                    if(!v) out[count >> 3] |= (1 << (count & 7));
+                    if(!v) out[count >> 3] |= (1 << (7-(count & 7)));
                     ++count;
                 }
             }
-
-            putchar('\n');
         }
     }
 

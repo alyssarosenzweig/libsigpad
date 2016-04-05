@@ -65,7 +65,7 @@ void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8
 
                 // x is the current x coordinate
                 // the subblock is implicity
-                int tX = width - 8 - x;
+                int tX = x;
 
                 // the address, as usual, is y*width + x
                 int addr = tY * (width >> 3) + (tX >> 3);
