@@ -1,6 +1,6 @@
 #include "stext.h"
 
-extern Glyph c1, c2, c3, c4, c5, c6, c7, c8, c9, cColon, cUnknown;
+extern Glyph c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, cColon, cUnknown, cSlash;
 
 unsigned char* scale(unsigned char* g, int scalar) {
     unsigned char* out = malloc(8 * scalar * scalar);
@@ -30,6 +30,7 @@ void renderGlyph(char c, int x, int y, int size) {
     Glyph g = cUnknown;
 
     switch(c) {
+        case '0': g = c0; break;
         case '1': g = c1; break;
         case '2': g = c2; break;
         case '3': g = c3; break;
@@ -40,6 +41,7 @@ void renderGlyph(char c, int x, int y, int size) {
         case '8': g = c8; break;
         case '9': g = c9; break;
         case ':': g = cColon; break;
+        case '/': g = cSlash; break;
     }
 
     unsigned char* bmp = scale(g.bitmap, scalar);

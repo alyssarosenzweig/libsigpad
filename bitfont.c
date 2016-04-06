@@ -41,9 +41,20 @@ Glyph make8x8Glyph(
     return g;
 }
 
-Glyph c1, c2, c3, c4, c5, c6, c7, c8, c9, cColon, cUnknown;
+Glyph c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, cColon, cSlash, cUnknown;
 
 void initializeGlyphs() {
+    c0 = make8x8Glyph(
+        "..*****.",
+        ".*....*.",
+        ".*....*.",
+        ".*....*.",
+        ".*....*.",
+        ".*....*.",
+        "..*****.",
+        "........"
+    );
+
     c1 = make8x8Glyph(
         "...**...",
         "..*.*...",
@@ -153,6 +164,18 @@ void initializeGlyphs() {
         "...***..",
         "........"
     );
+
+    cSlash = make8x8Glyph(
+        "........",
+        "......*.",
+        ".....*..",
+        "....*...",
+        "...*....",
+        "..*.....",
+        ".*......",
+        "........"
+    );
+
 
     cUnknown = make8x8Glyph(
         "........",
