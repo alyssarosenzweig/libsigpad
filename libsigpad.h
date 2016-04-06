@@ -33,6 +33,3 @@ void clear();
 void backlightControl(bool on);
 void backlightOn();
 void backlightOff();
-
-// low-level command to force the display to pong
-void display_pong();

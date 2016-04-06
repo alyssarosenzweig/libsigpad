@@ -21,15 +21,8 @@ int init_sigpad() {
     return 0;
 }
 
-inline void display_pong() {
-    rawhid_recv(0, pingBuffer, sizeof(pingBuffer), TIMEOUT);
-    rawhid_send(0, pingBuffer, sizeof(pingBuffer), TIMEOUT);
-    pingTimer = PING_PACKET_COUNT;
-}
-
 static inline void send_packet(unsigned char* buffer, size_t length) {
     rawhid_send(0, buffer, length, TIMEOUT);
-    if(pingTimer-- == 0) display_pong();
 }
 
 void bitmapRaw(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {
