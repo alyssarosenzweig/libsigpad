@@ -3,6 +3,8 @@
 unsigned int pingTimer = PING_PACKET_COUNT;
 uint8_t pingBuffer[16];
 
+uint8_t framebuffer[320 * 240 / 8];
+
 // TODO: support big-endian machines
 
 int init_sigpad() {
@@ -12,6 +14,8 @@ int init_sigpad() {
         printf("Opening error: %d\n", status);
         return -1;
     }
+
+    memset(framebuffer, 0, sizeof(framebuffer));
 
     clear();
     return 0;
