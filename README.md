@@ -8,6 +8,11 @@ Dependencies
 
 libsigpad uses the [RawHID library](http://www.pjrc.com/teensy/rawhid.html), which it expects to coexist with. It additionally builds with the RawHID makefile (change the source name as needed).
 
+Privileges
+=========
+
+In certain configurations, root permissions may be necessary to use USB devices. If this is the case, it may be mitigated through, e.g. udev rules. See the [RawHID documentation](http://www.pjrc.com/teensy/rawhid.html) for more information.
+
 About
 ==========
 
