@@ -3,6 +3,11 @@ libsigpad
 
 libsigpad implements a userspace driver for Topaz signature pads, at the moment capable of display bitmaps on certain HID USB models. The sample `clock` shows an example of how to use this library (text rendering is implemented in library, although pull requests to switch to a library like FreeType would be welcome.)
 
+Dependencies
+==========
+
+libsigpad uses the [RawHID library](http://www.pjrc.com/teensy/rawhid.html), which it expects to coexist with. It additionally builds with the RawHID makefile (change the source name as needed).
+
 About
 ==========
 
