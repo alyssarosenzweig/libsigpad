@@ -21,11 +21,6 @@
 
 #include "libsigpad.h"
 
-unsigned int pingTimer = PING_PACKET_COUNT;
-uint8_t pingBuffer[16];
-
-uint8_t framebuffer[320 * 240 / 8];
-
 // TODO: support big-endian machines
 
 int init_sigpad() {
@@ -36,8 +31,6 @@ int init_sigpad() {
         return -1;
     }
 
-    memset(framebuffer, 0, sizeof(framebuffer));
-
     clear();
     return 0;
 }
@@ -46,7 +39,7 @@ static inline void send_packet(unsigned char* buffer, size_t length) {
     rawhid_send(0, buffer, length, TIMEOUT);
 }
 
-void bitmapRaw(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {
+void bitmapBlock(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {
     int dataLength = (width * height) >> 3;
 
     unsigned char* buffer = malloc(11 + dataLength);
@@ -69,34 +62,17 @@ void bitmapRaw(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, vo
 }
 
 void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8_t* data) {
-    unsigned char scrap[8];
+    unsigned char block[8];
 
     for(int x = 0; x < width; x += 8) {
         for(int y = 0; y < width; y += 8) {
-            // copy, row by row, 8 pixels of data
+            /* blit 8x8 block */
 
-            for(int i = 0; i < 8; ++i) {
-                // i is the row
-                // y is the beginning
-                // so (y+i) is the current y coord
-                int tY = y + i;
-
-                // x is the current x coordinate
-                // the subblock is implicity
-                int tX = x;
-
-                // the address, as usual, is y*width + x
-                int addr = tY * (width >> 3) + (tX >> 3);
-
-                // except, here that address is 8x too big
-                scrap[i] = data[addr];
+            for(int row = 0; row < 8; ++row) {
+                block[row] = data[((y + row) * width + x) >> 3];
             }
 
-            bitmapRaw(
-                    xpos + x, ypos + y,
-                    8, 8,
-                    scrap
-                );
+            bitmapBlock(xpos + x, ypos + y, 8, 8, block);
         }
     }
 }
