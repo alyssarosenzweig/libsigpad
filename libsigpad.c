@@ -76,7 +76,6 @@ void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8
     unsigned char block[8];
 
     int awidth = ((width + 7) >> 3) << 3;
-    printf("Original %d, adjusted %d\n", width, awidth);
 
     for(int x = 0; x < width; x += 8) {
         for(int y = 0; y < height; y += 8) {

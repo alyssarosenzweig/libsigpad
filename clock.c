@@ -9,14 +9,11 @@ void drawTime() {
     time_t t = time(NULL);
     struct tm* tmp = localtime(&t);
 
-    strftime(str, 6, "%R", tmp);
-    renderString(str, 0, 0, 64);
+    strftime(str, 31, "%X", tmp);
+    renderString(str, 16, 16, 64);
 
-    strftime(str, 4, ":%S", tmp);
-    renderString(str, 224, 64, 32);
-
-    strftime(str, 13, "%x", tmp);
-    renderString(str, 320 - (24 * strlen(str)), 216, 24);
+    strftime(str, 31, "%x", tmp);
+    renderString(str, 16, 256 - 48, 32);
 }
 
 int main(int argc, char** argv) {

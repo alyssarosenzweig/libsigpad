@@ -12,7 +12,8 @@ void initializeGlyphs() {
 }
 
 void renderString(char* str, int x, int y, int size) {
-    FT_Set_Pixel_Sizes(face, 0, 52);
+    FT_Set_Pixel_Sizes(face, 0, size);
+    
     while(*str != '\0') {
         FT_Load_Char(face, *str++, FT_LOAD_RENDER | FT_LOAD_MONOCHROME);
         FT_Bitmap bmp = face->glyph->bitmap;
