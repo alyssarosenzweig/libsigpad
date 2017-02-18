@@ -14,12 +14,10 @@ void initializeGlyphs() {
 void renderString(char* str, int x, int y, int size) {
     FT_Set_Pixel_Sizes(face, 0, 52);
     while(*str != '\0') {
-        printf("(%d, %d)\n", x, y);
         FT_Load_Char(face, *str++, FT_LOAD_RENDER | FT_LOAD_MONOCHROME);
-        printf("%d|%d|\n", face->glyph->bitmap.width, face->glyph->bitmap.rows);
-
         FT_Bitmap bmp = face->glyph->bitmap;
-        bitmap(x, y, bmp.width, bmp.rows, bmp.buffer);
+
+        bitmap(x, y, ((bmp.width + 15) >> 4 << 4) , bmp.rows, bmp.buffer);
 
         x += face->glyph->advance.x >> 6;
         y += face->glyph->advance.y >> 6;

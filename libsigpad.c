@@ -53,7 +53,8 @@ void bitmapBlock(uint16_t xpos, uint16_t ypos, void* data) {
 }
 
 void bitmapPacked(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8_t* data) {
-    int awidth = ((width + 8) >> 3) << 3;
+    int awidth = ((width + 7) >> 3) << 3;
+    width = ((width + 15) >> 4) << 4;
 
     uint8_t* unpacked = malloc(awidth * height >> 3);
     memset(unpacked, 0, awidth*height >> 3);
@@ -62,8 +63,8 @@ void bitmapPacked(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height,
         for(int x = 0; x < width; ++x) {
             int bit = width*y + x;
 
-            if(data[bit >> 3] & (1 << 8-(bit & 7)))
-                unpacked[ (awidth*y + x) >> 3 ] |= (1 << 8-(x & 7));
+            if(data[bit >> 3] & (1 << (7-(bit&7))))
+                unpacked[ (awidth*y + x) >> 3 ] |= 1 << 7-(x&7);
         }
     }
 
@@ -81,7 +82,8 @@ void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8
         for(int y = 0; y < height; y += 8) {
             /* blit 8x8 block */
 
-            for(int row = 0; row < 8; ++row) {
+            memset(block, 0, sizeof(block));
+            for(int row = 0; row < 8 && y + row < height; ++row) {
                 block[row] = data[(((y + row) * awidth) >> 3) + (x >> 3)];
             }
 
