@@ -20,8 +20,6 @@ int main(int argc, char** argv) {
     if(init_sigpad()) return -1;
 
     initializeGlyphs();
-    clear();
-    backlightOn();
 
     for(;;) {
         drawTime();

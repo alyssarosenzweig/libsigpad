@@ -1,5 +1,5 @@
 all: hid.o
-	cc -o clock hid.o libsigpad.c stext.c -std=c99 `freetype-config --cflags` `freetype-config --libs` -lusb -lpthread
+	cc -o clock clock.c hid.o libsigpad.c stext.c -std=c99 `freetype-config --cflags` `freetype-config --libs` -lusb -lpthread
 
 hid.o: hid_LINUX.c hid.h
 	cc $(CFLAGS) -c -o $@ $<

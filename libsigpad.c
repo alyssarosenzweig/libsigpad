@@ -27,26 +27,22 @@ int init_sigpad() {
     if(rawhid_open(10, 0x06A8, 0x0043, -1, -1) != 1) return -1;
 
     clear();
+    setBacklight(true);
+
     return 0;
 }
 
 static inline void send_packet(unsigned char* packet, size_t length) {
-    rawhid_send(0, packet, length, TIMEOUT);
+    rawhid_send(0, packet, length, 4);
 }
 
 void bitmapBlock(uint16_t xpos, uint16_t ypos, void* data) {
-    unsigned char packet[11 + 8];
-    packet[0] = 0xF2; // command bytes
-    packet[1] = 0x07;
-    packet[2] = 0x02; // mode
+    unsigned char packet[11 + 8] = {0xF2, 0x07, 0x02, 0, 0, 0, 0, 0, 8, 0, 8};
+
     packet[3] = (xpos & 0xFF00) >> 8;
     packet[4] = (xpos & 0x00FF);
     packet[5] = (ypos & 0xFF00) >> 8;
     packet[6] = (ypos & 0x00FF);
-    packet[7] = 0;
-    packet[8] = 8;
-    packet[9] = 0;
-    packet[10] = 8;
 
     memcpy(packet + 11, data, 8);
     send_packet(packet, sizeof(packet));
@@ -91,10 +87,7 @@ void clear() {
     usleep(1000000);
 }
 
-void backlightControl(bool on) {
+void setBacklight(bool on) {
     unsigned char packet[] = { 0x81, 0x02 | (!on) };
     send_packet(packet, 2);
 }
-
-void backlightOn()  { backlightControl(1); }
-void backlightOff() { backlightControl(0); }
