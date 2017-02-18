@@ -1,59 +1,27 @@
 #include "stext.h"
 
-extern Glyph c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, cColon, cUnknown, cSlash;
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
-unsigned char* scale(unsigned char* g, int scalar) {
-    unsigned char* out = malloc(8 * scalar * scalar);
-    memset(out, 0, 8 * scalar * scalar);
+FT_Library ft;
+FT_Face face;
 
-    int count = 0;
-
-    for(int y = 0; y < 8; ++y) {
-        for(int i = 0; i < scalar; ++i) {
-            for(int x = 0; x < 8; ++x) {
-                unsigned char v = ((g[y] & (1 << (7-x))) == 0);
-
-                for(int j = 0; j < scalar; ++j) {
-                    if(!v) out[count >> 3] |= (1 << (7-(count & 7)));
-                    ++count;
-                }
-            }
-        }
-    }
-
-    return out;
-}
-
-void renderGlyph(char c, int x, int y, int size) {
-    int scalar = size >> 3; // only multiples of 8 work ATM
-
-    Glyph g = cUnknown;
-
-    switch(c) {
-        case '0': g = c0; break;
-        case '1': g = c1; break;
-        case '2': g = c2; break;
-        case '3': g = c3; break;
-        case '4': g = c4; break;
-        case '5': g = c5; break;
-        case '6': g = c6; break;
-        case '7': g = c7; break;
-        case '8': g = c8; break;
-        case '9': g = c9; break;
-        case ':': g = cColon; break;
-        case '/': g = cSlash; break;
-    }
-
-    unsigned char* bmp = scale(g.bitmap, scalar);
-
-    bitmap(x, y, size, size, bmp);
-
-    free(bmp);
+void initializeGlyphs() {
+    if(FT_Init_FreeType(&ft)) printf("ft init error\n");
+    if(FT_New_Face(ft, "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf", 0, &face)) printf("ft glyph error\n");
 }
 
 void renderString(char* str, int x, int y, int size) {
+    FT_Set_Pixel_Sizes(face, 0, 52);
     while(*str != '\0') {
-        renderGlyph(*str++, x, y, size);
-        x += size;
+        printf("(%d, %d)\n", x, y);
+        FT_Load_Char(face, *str++, FT_LOAD_RENDER | FT_LOAD_MONOCHROME);
+        printf("%d|%d|\n", face->glyph->bitmap.width, face->glyph->bitmap.rows);
+
+        FT_Bitmap bmp = face->glyph->bitmap;
+        bitmap(x, y, bmp.width, bmp.rows, bmp.buffer);
+
+        x += face->glyph->advance.x >> 6;
+        y += face->glyph->advance.y >> 6;
     }
 }

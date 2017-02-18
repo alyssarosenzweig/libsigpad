@@ -52,15 +52,37 @@ void bitmapBlock(uint16_t xpos, uint16_t ypos, void* data) {
     send_packet(packet, sizeof(packet));
 }
 
+void bitmapPacked(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8_t* data) {
+    int awidth = ((width + 8) >> 3) << 3;
+
+    uint8_t* unpacked = malloc(awidth * height >> 3);
+    memset(unpacked, 0, awidth*height >> 3);
+
+    for(int y = 0; y < height; ++y) {
+        for(int x = 0; x < width; ++x) {
+            int bit = width*y + x;
+
+            if(data[bit >> 3] & (1 << 8-(bit & 7)))
+                unpacked[ (awidth*y + x) >> 3 ] |= (1 << 8-(x & 7));
+        }
+    }
+
+    bitmap(xpos, ypos, awidth, height, unpacked);
+    free(unpacked);
+}
+
 void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8_t* data) {
     unsigned char block[8];
 
+    int awidth = ((width + 7) >> 3) << 3;
+    printf("Original %d, adjusted %d\n", width, awidth);
+
     for(int x = 0; x < width; x += 8) {
-        for(int y = 0; y < width; y += 8) {
+        for(int y = 0; y < height; y += 8) {
             /* blit 8x8 block */
 
             for(int row = 0; row < 8; ++row) {
-                block[row] = data[((y + row) * width + x) >> 3];
+                block[row] = data[(((y + row) * awidth) >> 3) + (x >> 3)];
             }
 
             bitmapBlock(xpos + x, ypos + y, block);
@@ -93,5 +115,5 @@ void backlightControl(bool on) {
     send_packet(packet, 2);
 }
 
-void backlightOn() { backlightControl(1); }
+void backlightOn()  { backlightControl(1); }
 void backlightOff() { backlightControl(0); }
