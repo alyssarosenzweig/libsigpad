@@ -24,41 +24,32 @@
 // TODO: support big-endian machines
 
 int init_sigpad() {
-    int status = rawhid_open(10, 0x06A8, 0x0043, -1, -1); 
-
-    if(status != 1) {
-        printf("Opening error: %d\n", status);
-        return -1;
-    }
+    if(rawhid_open(10, 0x06A8, 0x0043, -1, -1) != 1) return -1;
 
     clear();
     return 0;
 }
 
-static inline void send_packet(unsigned char* buffer, size_t length) {
-    rawhid_send(0, buffer, length, TIMEOUT);
+static inline void send_packet(unsigned char* packet, size_t length) {
+    rawhid_send(0, packet, length, TIMEOUT);
 }
 
-void bitmapBlock(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, void* data) {
-    int dataLength = (width * height) >> 3;
+void bitmapBlock(uint16_t xpos, uint16_t ypos, void* data) {
+    unsigned char packet[11 + 8];
+    packet[0] = 0xF2; // command bytes
+    packet[1] = 0x07;
+    packet[2] = 0x02; // mode
+    packet[3] = (xpos & 0xFF00) >> 8;
+    packet[4] = (xpos & 0x00FF);
+    packet[5] = (ypos & 0xFF00) >> 8;
+    packet[6] = (ypos & 0x00FF);
+    packet[7] = 0;
+    packet[8] = 8;
+    packet[9] = 0;
+    packet[10] = 8;
 
-    unsigned char* buffer = malloc(11 + dataLength);
-    buffer[0] = 0xF2; // command bytes
-    buffer[1] = 0x07;
-    buffer[2] = 0x02; // mode
-    buffer[3] = (xpos & 0xFF00) >> 8;
-    buffer[4] = (xpos & 0x00FF);
-    buffer[5] = (ypos & 0xFF00) >> 8;
-    buffer[6] = (ypos & 0x00FF);
-    buffer[7] = (width & 0xFF00) >> 8;
-    buffer[8] = (width & 0x00FF);
-    buffer[9] = (height & 0xFF00) >> 8;
-    buffer[10] = (height & 0x00FF);
-
-    memcpy(buffer + 11, data, dataLength);
-    send_packet(buffer, dataLength + 11);
-
-    free(buffer);
+    memcpy(packet + 11, data, 8);
+    send_packet(packet, sizeof(packet));
 }
 
 void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8_t* data) {
@@ -72,24 +63,24 @@ void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8
                 block[row] = data[((y + row) * width + x) >> 3];
             }
 
-            bitmapBlock(xpos + x, ypos + y, 8, 8, block);
+            bitmapBlock(xpos + x, ypos + y, block);
         }
     }
 }
 
 void rectangle(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8_t mode) {
-    unsigned char buffer[11] = { 0xFF, 0x12, mode };
+    unsigned char packet[11] = { 0xFF, 0x12, mode };
 
-    buffer[3] = (xpos & 0xFF00) >> 8;
-    buffer[4] = (xpos & 0x00FF);
-    buffer[5] = (ypos & 0xFF00) >> 8;
-    buffer[6] = (ypos & 0x00FF);
-    buffer[7] = (width & 0xFF00) >> 8;
-    buffer[8] = (width & 0x00FF);
-    buffer[9] = (height & 0xFF00) >> 8;
-    buffer[10] = (height & 0x00FF);
+    packet[3] = (xpos & 0xFF00) >> 8;
+    packet[4] = (xpos & 0x00FF);
+    packet[5] = (ypos & 0xFF00) >> 8;
+    packet[6] = (ypos & 0x00FF);
+    packet[7] = (width & 0xFF00) >> 8;
+    packet[8] = (width & 0x00FF);
+    packet[9] = (height & 0xFF00) >> 8;
+    packet[10] = (height & 0x00FF);
 
-    send_packet(buffer, sizeof(buffer));
+    send_packet(packet, sizeof(packet));
 }
 
 void clear() { 
@@ -98,8 +89,8 @@ void clear() {
 }
 
 void backlightControl(bool on) {
-    unsigned char buffer[] = { 0x81, 0x02 | (!on) };
-    send_packet(buffer, 2);
+    unsigned char packet[] = { 0x81, 0x02 | (!on) };
+    send_packet(packet, 2);
 }
 
 void backlightOn() { backlightControl(1); }
