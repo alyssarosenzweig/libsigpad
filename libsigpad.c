@@ -42,7 +42,7 @@ static inline void send_packet(uint8_t* packet, size_t length) {
 }
 
 void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8_t* data) {
-    uint8_t packet[11 + 8] = { 0xFF, 0x07, 0x02, 0, 0, 0, 0, 0, 8, 0, 8};
+    uint8_t packet[11 + 8] = { 0xF2, 0x07, 0x02, 0, 0, 0, 0, 0, 8, 0, 8};
     uint8_t* block = packet + 11;
 
     int awidth = ((width + 7) >> 3) << 3;
