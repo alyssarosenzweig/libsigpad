@@ -1,7 +1,7 @@
 libsigpad
 ==========
 
-libsigpad implements a userspace driver for Topaz signature pads, at the moment capable of display bitmaps on certain HID USB models. The sample `clock` shows an example of how to use this library (text rendering is implemented in library, although pull requests to switch to a library like FreeType would be welcome.)
+libsigpad implements a userspace driver for Topaz signature pads, at the moment capable of display bitmaps on certain HID USB models. The sample `clock` shows an example of how to use this library.
 
 Dependencies
 ==========
