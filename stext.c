@@ -28,7 +28,7 @@ void renderString(char* str, int x, int y, int size) {
         FT_Load_Glyph(face, glyph, FT_LOAD_RENDER | FT_LOAD_MONOCHROME);
         FT_Bitmap bmp = face->glyph->bitmap;
 
-        bitmap(x, y, ((bmp.width + 15) >> 4 << 4) , bmp.rows, bmp.buffer);
+        bitmap(x + face->glyph->bitmap_left, y + size - face->glyph->bitmap_top, ((bmp.width + 15) >> 4 << 4) , bmp.rows, bmp.buffer);
 
         x += face->glyph->advance.x >> 6;
         y += face->glyph->advance.y >> 6;
