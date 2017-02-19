@@ -37,7 +37,7 @@ static inline void send_packet(unsigned char* packet, size_t length) {
 }
 
 void bitmapBlock(uint16_t xpos, uint16_t ypos, void* data) {
-    unsigned char packet[11 + 8] = {0xF2, 0x07, 0x02, 0, 0, 0, 0, 0, 8, 0, 8};
+    unsigned char packet[11 + 8] = {0xFF, 0x07, 0x02, 0, 0, 0, 0, 0, 8, 0, 8};
 
     packet[3] = (xpos & 0xFF00) >> 8;
     packet[4] = (xpos & 0x00FF);
@@ -88,6 +88,6 @@ void clear() {
 }
 
 void setBacklight(bool on) {
-    unsigned char packet[] = { 0x81, 0x02 | (!on) };
+    unsigned char packet[] = { 0xFF, 0x02 | (!on) };
     send_packet(packet, 2);
 }
