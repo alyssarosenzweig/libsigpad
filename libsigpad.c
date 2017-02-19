@@ -21,35 +21,29 @@
 
 #include "libsigpad.h"
 
-// TODO: support big-endian machines
-
 int init_sigpad() {
     if(rawhid_open(10, 0x06A8, 0x0043, -1, -1) != 1) return -1;
 
     clear();
+    setBacklight(false);
+    sleep(1);
     setBacklight(true);
 
     return 0;
 }
 
-static inline void send_packet(unsigned char* packet, size_t length) {
+void clear() { 
+    rectangle(0, 0, 320, 240, 2);
+    usleep(1000000);
+}
+
+static inline void send_packet(uint8_t* packet, size_t length) {
     rawhid_send(0, packet, length, 4);
 }
 
-void bitmapBlock(uint16_t xpos, uint16_t ypos, void* data) {
-    unsigned char packet[11 + 8] = {0xFF, 0x07, 0x02, 0, 0, 0, 0, 0, 8, 0, 8};
-
-    packet[3] = (xpos & 0xFF00) >> 8;
-    packet[4] = (xpos & 0x00FF);
-    packet[5] = (ypos & 0xFF00) >> 8;
-    packet[6] = (ypos & 0x00FF);
-
-    memcpy(packet + 11, data, 8);
-    send_packet(packet, sizeof(packet));
-}
-
 void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8_t* data) {
-    unsigned char block[8];
+    uint8_t packet[11 + 8] = { 0xFF, 0x07, 0x02, 0, 0, 0, 0, 0, 8, 0, 8};
+    uint8_t* block = packet + 11;
 
     int awidth = ((width + 7) >> 3) << 3;
 
@@ -62,32 +56,31 @@ void bitmap(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8
                 block[row] = data[(((y + row) * awidth) >> 3) + (x >> 3)];
             }
 
-            bitmapBlock(xpos + x, ypos + y, block);
+            packet[3] = ((xpos + x) & 0xFF00) >> 8;
+            packet[4] = ((xpos + x) & 0xFF);
+            packet[5] = ((ypos + y) & 0xFF00) >> 8;
+            packet[6] = ((ypos + y) & 0xFF);
+
+            send_packet(packet, sizeof(packet));
         }
     }
 }
 
 void rectangle(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint8_t mode) {
-    unsigned char packet[11] = { 0xFF, 0x12, mode };
+    uint8_t packet[11] = {
+        0xFF, 0x12, mode,
 
-    packet[3] = (xpos & 0xFF00) >> 8;
-    packet[4] = (xpos & 0x00FF);
-    packet[5] = (ypos & 0xFF00) >> 8;
-    packet[6] = (ypos & 0x00FF);
-    packet[7] = (width & 0xFF00) >> 8;
-    packet[8] = (width & 0x00FF);
-    packet[9] = (height & 0xFF00) >> 8;
-    packet[10] = (height & 0x00FF);
+        (xpos   & 0xFF00) >> 8, xpos   & 0x00FF,
+        (ypos   & 0xFF00) >> 8, ypos   & 0x00FF,
+
+        (width  & 0xFF00) >> 8, width  & 0x00FF,
+        (height & 0xFF00) >> 8, height & 0x00FF,
+    };
 
     send_packet(packet, sizeof(packet));
 }
 
-void clear() { 
-    rectangle(0, 0, 320, 240, 2);
-    usleep(1000000);
-}
-
 void setBacklight(bool on) {
-    unsigned char packet[] = { 0xFF, 0x02 | (!on) };
-    send_packet(packet, 2);
+    uint8_t packet[] = { 0xFF, 0x02 | (!on) };
+    send_packet(packet, sizeof(packet));
 }

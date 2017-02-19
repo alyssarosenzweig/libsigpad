@@ -2,7 +2,7 @@
 #include "stext.h"
 
 void main() {
-    if(init_sigpad()) return -1;
+    if(init_sigpad()) return;
     initializeGlyphs();
 
     char buffer[40];

@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
-#include <sys/ioctl.h>
-#include <termios.h>
 #include <stdint.h>
 #include <stdbool.h>
 
