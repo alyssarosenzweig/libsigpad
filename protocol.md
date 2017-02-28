@@ -16,7 +16,7 @@ Command    | `uint16_t`| Always `0xFF02`
 
 Backlight off:
 
-Field        Type      | Notes
+Field      | Type      | Notes
 -----------|-----------|--------------
 Command    | `uint16_t`| Always `0xFF03`
 
