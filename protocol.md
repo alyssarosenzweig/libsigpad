@@ -10,38 +10,38 @@ Each packet begins with a command identifier and is followed by a set of big-end
 
 Backlight on:
 
-Field        Type        Notes
------------  ----------  -------------
-Command      `uint16_t`  Always `0xFF02`
+Field      | Type      | Notes
+-----------|-----------|--------------
+Command    | `uint16_t`| Always `0xFF02`
 
 Backlight off:
 
-Field        Type        Notes
------------  ----------  -------------
-Command      `uint16_t`  Always `0xFF03`
+Field        Type      | Notes
+-----------|-----------|--------------
+Command    | `uint16_t`| Always `0xFF03`
 
 Bitmap blit:
 
-Field        Type        Notes
------------  ----------  -------------
-Command      `uint16_t`  Always `0xF207`
-Mode         `uint8_t`   `0x02` to overwrite the area; `0x03` for transparency
-X position   `uint16_t`
-Y position   `uint16_t`
-Width        `uint16_t`  Should probably be a multiple of 8
-Height       `uint16_t`
-Bitmap       `pixel[]`   Packed monochrome bitmap; (width * height / 8) bytes large
+Field      | Type      | Notes
+-----------|-----------|--------------
+Command    | `uint16_t`| Always `0xF207`
+Mode       | `uint8_t` | `0x02` to overwrite the area; `0x03` for transparency
+X position | `uint16_t`|
+Y position | `uint16_t`|
+Width      | `uint16_t`| Should probably be a multiple of 8
+Height     | `uint16_t`| 
+Bitmap     | `pixel[]` | Packed monochrome bitmap; (width * height / 8) bytes large
 
 Rectangle clear:
 
-Field        Type        Notes
------------  ----------  -------------
-Command      `uint16_t`  Always `0xFF12`
-Mode         `uint8_t`   Set to 2 to clear, set to 1 to invert (?) region
-X position   `uint16_t`  Measured from top-left corner
-Y position   `uint16_t`
-Width        `uint16_t`
-Height       `uint16_t`
+Field      | Type      | Notes
+-----------|-----------|--------------
+Command    | `uint16_t`| Always `0xFF12`
+Mode       | `uint8_t` | Set to 2 to clear, set to 1 to invert (?) region
+X position | `uint16_t`| Measured from top-left corner
+Y position | `uint16_t`|
+Width      | `uint16_t`|
+Height     | `uint16_t`|
 
 
 ## Notes on usage
