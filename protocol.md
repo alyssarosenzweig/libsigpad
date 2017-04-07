@@ -1,10 +1,14 @@
-# Reverse engineered protocol for reference
+% Reverse engineered protocol for Topaz signature pads
 
 ## Overview
 
-The Topaz signature pads used a packet-based protocol, sent over various interfaces depending on the model. Possible interfaces include raw USB HID messages, RS-232, serial-over-USB, and other wireless interfaces. `libsigpad` and the accompanying kernel driver implement only USB HID for the time being. 
+The Topaz signature pads used a packet-based protocol, sent over various
+interfaces depending on the model. Possible interfaces include raw USB HID
+messages, RS-232, serial-over-USB, and other wireless interfaces. `libsigpad`
+and the accompanying kernel driver implement only USB HID for the time being. 
 
-Each packet begins with a command identifier and is followed by a set of big-endian parameters.
+Each packet begins with a command identifier and is followed by a set of
+big-endian parameters.
 
 ## Packet reference
 
@@ -46,12 +50,20 @@ Height     | `uint16_t`|
 
 ## Notes on usage
 
-Due to limits on HID packet length (24 bytes in this case), bitmaps in particular need to be split across several packets, each with a separate header. Delays between packets may be necessary to avoid data corruption, requiring a display restart.
+Due to limits on HID packet length (24 bytes in this case), bitmaps in
+particular need to be split across several packets, each with a separate
+header. Delays between packets may be necessary to avoid data corruption,
+requiring a display restart.
 
-A screen clear can be achieved efficiently by filling a rectangle with mode set to two, from (0, 0) to (width, height).
+A screen clear can be achieved efficiently by filling a rectangle with mode set
+to two, from (0, 0) to (width, height).
 
 ## Disclaimer
 
-Information was obtained predominantly through fuzzing, trial-and-error, and guesswork. Basic information is from the manufacturer website. Mode names were from the public reference for the official driver API. It is likely the protocol is similar for other models, although YMMV. I am not affiliated with Topaz Systems.
+Information was obtained predominantly through fuzzing, trial-and-error, and
+guesswork. Basic information is from the manufacturer website. Mode names were
+from the public reference for the official driver API. It is likely the
+protocol is similar for other models, although YMMV. I am not affiliated with
+Topaz Systems.
 
 Written by Alyssa Rosenzweig on 2017-02-17.
